@@ -124,7 +124,7 @@ public class WiFiPassShareActivity extends Activity {
 
 			public void onClick(View v) {
 				if (mWiFiManager.isWifiEnabled()) {
-					while(mWiFiManager.getWifiState()!=WifiManager.WIFI_STATE_ENABLED){
+					while (mWiFiManager.getWifiState() != WifiManager.WIFI_STATE_ENABLED) {
 						Log.d("xxx", "Please wait...");
 					}
 					getAvailableAPs();
@@ -345,6 +345,18 @@ public class WiFiPassShareActivity extends Activity {
 		lv.setAdapter(adapter);
 		lv.setTextFilterEnabled(true);
 		adapter.notifyDataSetChanged();
+
+		lv.setOnItemClickListener(new OnItemClickListener() {
+
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+					long arg3) {
+				Toast
+						.makeText(
+								getApplicationContext(),
+								"First scan for matching APs, then if found, you can connect!",
+								Toast.LENGTH_SHORT).show();
+			}
+		});
 	}
 
 	/**
@@ -626,8 +638,8 @@ public class WiFiPassShareActivity extends Activity {
 		// List available networks
 		List<WifiConfiguration> configs = mWiFiManager.getConfiguredNetworks();
 		for (WifiConfiguration config : configs) {
-			
-			Log.d("xxx", config.SSID+" ?= "+ssid);
+
+			Log.d("xxx", config.SSID + " ?= " + ssid);
 			if (config.SSID.equalsIgnoreCase("\"" + ssid + "\"")) {
 				exists = true;
 			}
