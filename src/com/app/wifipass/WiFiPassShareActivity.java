@@ -654,6 +654,7 @@ public class WiFiPassShareActivity extends Activity {
 			mWiFiManager.setWifiEnabled(true);
 			int netId = mWiFiManager.addNetwork(wifiConfig);
 			mWiFiManager.enableNetwork(netId, true);
+			mWiFiManager.saveConfiguration();
 		} else
 			Toast.makeText(getApplicationContext(),
 					"Network is already configured!", Toast.LENGTH_SHORT)
