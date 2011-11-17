@@ -14,7 +14,7 @@ public final class R {
         public static final int icon=0x7f020000;
     }
     public static final class id {
-        public static final int accesspointslist=0x7f050009;
+        public static final int accesspointslist=0x7f05000a;
         public static final int apn=0x7f050001;
         public static final int apntxt=0x7f050000;
         public static final int cancel=0x7f050007;
@@ -24,6 +24,7 @@ public final class R {
         public static final int password=0x7f050003;
         public static final int save=0x7f050006;
         public static final int scan=0x7f050008;
+        public static final int toggle=0x7f050009;
     }
     public static final class layout {
         public static final int add_dialog=0x7f030000;

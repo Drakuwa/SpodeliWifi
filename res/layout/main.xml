@@ -4,12 +4,25 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-<Button 
-	android:id="@+id/scan"
-	android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:text="Scan!"
-/>
+    <LinearLayout 
+    android:orientation="horizontal"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content" android:baselineAligned="false">
+    	<Button 
+			android:id="@+id/scan"
+			android:text="Scan!"
+    		android:layout_width="wrap_content" 
+    		android:layout_height="wrap_content" 
+    		android:layout_weight="1"/>
+		<ToggleButton 
+			android:id="@+id/toggle"
+			android:layout_width="wrap_content"
+    		android:layout_height="wrap_content"
+    		android:textOn="WiFi On!"
+    		android:textOff="WiFi Off!" 
+    		android:layout_weight="0.3"/>
+    </LinearLayout>
+
 <ListView 
 	android:id="@+id/accesspointslist"
 	android:layout_width="fill_parent"
