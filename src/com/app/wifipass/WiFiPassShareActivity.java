@@ -130,7 +130,7 @@ public class WiFiPassShareActivity extends Activity {
 		} else if (!mWiFiManager.isWifiEnabled()
 				|| mWiFiManager.getWifiState() == WifiManager.WIFI_STATE_DISABLING)
 			togglebutton.setChecked(false);
-
+//075223777
 		togglebutton.setOnClickListener(new OnClickListener() {
 
 			public void onClick(View v) {
