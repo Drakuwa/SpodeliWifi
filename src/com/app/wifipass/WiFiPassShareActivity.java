@@ -50,8 +50,16 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 import android.widget.AdapterView.OnItemClickListener;
 
+/**
+ * Main activity class that implements the Wifi API for scanning, connecting and
+ * listening for changes
+ * 
+ * @author drakuwa
+ * 
+ */
 public class WiFiPassShareActivity extends Activity {
 
+	// Declare variables
 	private WifiManager mWiFiManager;
 	private ListView lv;
 	private ArrayAdapter<String> adapter;
@@ -79,6 +87,10 @@ public class WiFiPassShareActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
+		/**
+		 * Get the path to the app folder on the sd card and check if the needed
+		 * two files (the version number, and the list of APs) exist
+		 */
 		path = new File(Environment.getExternalStorageDirectory(), this
 				.getPackageName());
 		if (!path.exists()) {
@@ -101,6 +113,9 @@ public class WiFiPassShareActivity extends Activity {
 			}
 		}
 
+		/**
+		 * Get the version of the list
+		 */
 		try {
 			BufferedReader bufferedReader = new BufferedReader(new FileReader(
 					versionfile));
@@ -119,9 +134,13 @@ public class WiFiPassShareActivity extends Activity {
 			ioe.printStackTrace();
 		}
 
+		// Initialize the WifiManager
 		mWiFiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 		// WifiInfo w = mWiFiManager.getConnectionInfo();
 
+		/**
+		 * Initialize and set the toggle button state - on if the Wifi is on
+		 */
 		final ToggleButton togglebutton = (ToggleButton) findViewById(R.id.toggle);
 
 		if (mWiFiManager.isWifiEnabled()
@@ -130,7 +149,11 @@ public class WiFiPassShareActivity extends Activity {
 		} else if (!mWiFiManager.isWifiEnabled()
 				|| mWiFiManager.getWifiState() == WifiManager.WIFI_STATE_DISABLING)
 			togglebutton.setChecked(false);
-//075223777
+
+		/**
+		 * Set on click listener for the toggle button, change the state of the
+		 * wifi on every toggle button state change
+		 */
 		togglebutton.setOnClickListener(new OnClickListener() {
 
 			public void onClick(View v) {
@@ -144,32 +167,16 @@ public class WiFiPassShareActivity extends Activity {
 			}
 		});
 
-		// TODO sredi ga risiver..
+		/**
+		 * First broadcast receiver that listens for changes in the connectivity
+		 * manager. If the network is connected, add the AP to the configured
+		 * networks list, or else, remove the newly added network because it
+		 * can't connect, and unregister the receivers
+		 */
 		broadcastReceiver = new BroadcastReceiver() {
 
 			@Override
 			public void onReceive(Context context, Intent intent) {
-				/*
-				 * final String action = intent.getAction(); for(int i=0;
-				 * i<intent.getExtras().size(); i++){ Log.d("xxx",
-				 * intent.getExtras().toString()); }
-				 * 
-				 * Toast.makeText(getApplicationContext(), action,
-				 * Toast.LENGTH_SHORT).show(); Log.d("xxx", action);
-				 * 
-				 * if
-				 * (action.equals(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION
-				 * )) { if
-				 * (intent.getBooleanExtra(WifiManager.EXTRA_SUPPLICANT_CONNECTED
-				 * , true)) { //do stuff String a =
-				 * intent.getStringExtra(WifiManager.EXTRA_NETWORK_INFO);
-				 * Toast.makeText(getApplicationContext(), a,
-				 * Toast.LENGTH_SHORT).show(); } else { // wifi connection was
-				 * lost Toast.makeText(getApplicationContext(),
-				 * "Connection was lost...", Toast.LENGTH_SHORT).show(); } }
-				 * else Toast.makeText(getApplicationContext(), "Something...",
-				 * Toast.LENGTH_SHORT).show();
-				 */
 				String reason = intent
 						.getStringExtra(ConnectivityManager.EXTRA_REASON);
 				NetworkInfo currentNetworkInfo = (NetworkInfo) intent
@@ -218,6 +225,12 @@ public class WiFiPassShareActivity extends Activity {
 		intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
 		intentFilter.addAction(ConnectivityManager.EXTRA_REASON);
 
+		/**
+		 * Second broadcast receiver that listens for supplicant changes and
+		 * detects if there was an error in the attempt to connect to a wifi
+		 * access point. Also deletes the network from current configured
+		 * networks if there was an error
+		 */
 		ifil = new IntentFilter(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
 		br = new BroadcastReceiver() {
 
@@ -249,6 +262,11 @@ public class WiFiPassShareActivity extends Activity {
 			}
 		};
 
+		/**
+		 * Initialize and set the on click listener to the scan button that will
+		 * be used for scanning for matching APs (comparing the list from the
+		 * application and currently available networks from the AP scan)
+		 */
 		Button scan = (Button) findViewById(R.id.scan);
 		scan.setOnClickListener(new OnClickListener() {
 
@@ -301,6 +319,10 @@ public class WiFiPassShareActivity extends Activity {
 		 */
 	}
 
+	/**
+	 * on destroy of the activity, unregister the broadcast receivers if there
+	 * are some left
+	 */
 	@Override
 	protected void onDestroy() {
 		if (receiverRegistered) {
@@ -313,6 +335,12 @@ public class WiFiPassShareActivity extends Activity {
 		super.onDestroy();
 	}
 
+	/**
+	 * Check if there is an internet connection (mobile or wifi) established for
+	 * syncing and adding a new wifi AP to the web service
+	 * 
+	 * @return
+	 */
 	public boolean HaveNetworkConnection() {
 		boolean HaveConnectedWifi = false;
 		boolean HaveConnectedMobile = false;
@@ -330,6 +358,10 @@ public class WiFiPassShareActivity extends Activity {
 		return HaveConnectedWifi || HaveConnectedMobile;
 	}
 
+	/**
+	 * Create an alert dialog that redirects you to the internet options on the
+	 * phone, so you can enable an internet connection
+	 */
 	public void createInternetDisabledAlert() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder
@@ -346,12 +378,19 @@ public class WiFiPassShareActivity extends Activity {
 		alert.show();
 	}
 
+	/**
+	 * Start the wireless settings activity
+	 */
 	public void showNetOptions() {
 		Intent netOptionsIntent = new Intent(
 				android.provider.Settings.ACTION_WIRELESS_SETTINGS);
 		this.startActivity(netOptionsIntent);
 	}
 
+	/**
+	 * Get the currently available APs from the scan, and add them to an array
+	 * list
+	 */
 	public void getAvailableAPs() {
 
 		AP.clear();
@@ -369,6 +408,12 @@ public class WiFiPassShareActivity extends Activity {
 		}
 	}
 
+	/**
+	 * Get the saved APs from the application and check for matching APs. The
+	 * matching is done via comparing the bssid-s of the scan result APs and
+	 * saved APs. If there is a matching AP, add it to the list, and set on item
+	 * click listener that tries to connect to the clicked AP
+	 */
 	public void getSavedAPs() {
 
 		savedAP.clear();
@@ -446,6 +491,9 @@ public class WiFiPassShareActivity extends Activity {
 		});
 	}
 
+	/**
+	 * Show all saved APs in a list.
+	 */
 	public void getAllAPs() {
 		savedAP.clear();
 		matchingAP.clear();
@@ -520,7 +568,9 @@ public class WiFiPassShareActivity extends Activity {
 
 	/**
 	 * An override of the menu item select method that adds some useful
-	 * functionalities to this part of the application.
+	 * functionalities to this part of the application. You can synchronize the
+	 * local list with the internet list, add an AP (the currently active AP),
+	 * and get all the saved APs.
 	 */
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
@@ -548,6 +598,14 @@ public class WiFiPassShareActivity extends Activity {
 		return false;
 	}
 
+	/**
+	 * An asynchronous task class that connects to the web service and retrieves
+	 * all of the saved APs in the online list, while showing a progress dialog
+	 * in the UI thread
+	 * 
+	 * @author drakuwa
+	 * 
+	 */
 	public class sync extends AsyncTask<String, Void, String> {
 		ProgressDialog dialog;
 
@@ -643,6 +701,13 @@ public class WiFiPassShareActivity extends Activity {
 		}
 	}
 
+	/**
+	 * An asynchronous task class that connects to the web service and adds an
+	 * APs in the online list, while showing a progress dialog in the UI thread
+	 * 
+	 * @author drakuwa
+	 * 
+	 */
 	public class add extends AsyncTask<String, Void, String> {
 		ProgressDialog dialog;
 
@@ -728,6 +793,12 @@ public class WiFiPassShareActivity extends Activity {
 		}
 	}
 
+	/**
+	 * Create the dialog for adding an AP. The dialog is called with the
+	 * currently connected AP name (SSID) and the AP BSSID, which can be
+	 * changed, and an additional password field which you need to fill. On
+	 * save, the dialog calls the "add" AsyncTask
+	 */
 	public void addAP() {
 		final Dialog dialog = new Dialog(this);
 
@@ -771,12 +842,19 @@ public class WiFiPassShareActivity extends Activity {
 		dialog.show();
 	}
 
+	/**
+	 * Get the AP parameters from the string parameter AP passed to this
+	 * function, check the existing network configurations, and search for
+	 * matchings. If there is a math, nothing is done, because the AP we're
+	 * trying to connect to is already configured, else add the wifi
+	 * configuration, and try to connect to the AP, and register the broadcast
+	 * receivers to listen for wifi status changes.
+	 * 
+	 * @param AP
+	 */
 	public void connectTo(String AP) {
-		boolean exists = false;
 
-		// TODO
-		// proveri dali e vec konektiran wifi, ako e, nishto rabota. proveri i
-		// dali e prisutna konfiguracija i slicno...
+		boolean exists = false;
 		String bssid = AP.substring(AP.indexOf("BSSID: ") + 7, AP
 				.indexOf("\nPassword"));
 		String psk = AP.substring(AP.indexOf("Password: ") + 10, AP.length());
@@ -817,6 +895,13 @@ public class WiFiPassShareActivity extends Activity {
 					.show();
 	}
 
+	/**
+	 * Show a progress dialog, while the status of the wifi is either CONNECTED,
+	 * DISCONNECTED or there was an error in the process
+	 * 
+	 * @author drakuwa
+	 * 
+	 */
 	public class isConnected extends AsyncTask<String, Void, String> {
 		ProgressDialog dialog;
 
