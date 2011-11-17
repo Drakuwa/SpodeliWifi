@@ -22,9 +22,11 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.ScanResult;
@@ -45,6 +47,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 import android.widget.AdapterView.OnItemClickListener;
 
 public class WiFiPassShareActivity extends Activity {
@@ -62,6 +65,13 @@ public class WiFiPassShareActivity extends Activity {
 	private String newversion;
 	private String fullap;
 	private File path;
+	private IntentFilter intentFilter;
+	private IntentFilter ifil;
+	private BroadcastReceiver broadcastReceiver;
+	private BroadcastReceiver br;
+	private boolean receiverRegistered = false;
+	private int netId;
+	public boolean isConnectedOrFailed = false;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -103,13 +113,6 @@ public class WiFiPassShareActivity extends Activity {
 			if (s.toString().length() > 0)
 				version = s.toString();
 
-			/*
-			 * BufferedReader bufferedReader2 = new BufferedReader(new
-			 * FileReader( collectionfile)); String sResponse2; StringBuilder s2
-			 * = new StringBuilder(); while ((sResponse2 =
-			 * bufferedReader2.readLine()) != null) { s2 =
-			 * s2.append(sResponse2+"\n"); } Log.d("xxx", s2.toString());
-			 */
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException ioe) {
@@ -119,20 +122,150 @@ public class WiFiPassShareActivity extends Activity {
 		mWiFiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 		// WifiInfo w = mWiFiManager.getConnectionInfo();
 
+		final ToggleButton togglebutton = (ToggleButton) findViewById(R.id.toggle);
+
+		if (mWiFiManager.isWifiEnabled()
+				|| mWiFiManager.getWifiState() == WifiManager.WIFI_STATE_ENABLING) {
+			togglebutton.setChecked(true);
+		} else if (!mWiFiManager.isWifiEnabled()
+				|| mWiFiManager.getWifiState() == WifiManager.WIFI_STATE_DISABLING)
+			togglebutton.setChecked(false);
+
+		togglebutton.setOnClickListener(new OnClickListener() {
+
+			public void onClick(View v) {
+				if (togglebutton.isChecked()) {
+					if (!mWiFiManager.isWifiEnabled())
+						if (mWiFiManager.getWifiState() != WifiManager.WIFI_STATE_ENABLING)
+							mWiFiManager.setWifiEnabled(true);
+				} else if (mWiFiManager.isWifiEnabled())
+					if (mWiFiManager.getWifiState() != WifiManager.WIFI_STATE_DISABLING)
+						mWiFiManager.setWifiEnabled(false);
+			}
+		});
+
+		// TODO sredi ga risiver..
+		broadcastReceiver = new BroadcastReceiver() {
+
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				/*
+				 * final String action = intent.getAction(); for(int i=0;
+				 * i<intent.getExtras().size(); i++){ Log.d("xxx",
+				 * intent.getExtras().toString()); }
+				 * 
+				 * Toast.makeText(getApplicationContext(), action,
+				 * Toast.LENGTH_SHORT).show(); Log.d("xxx", action);
+				 * 
+				 * if
+				 * (action.equals(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION
+				 * )) { if
+				 * (intent.getBooleanExtra(WifiManager.EXTRA_SUPPLICANT_CONNECTED
+				 * , true)) { //do stuff String a =
+				 * intent.getStringExtra(WifiManager.EXTRA_NETWORK_INFO);
+				 * Toast.makeText(getApplicationContext(), a,
+				 * Toast.LENGTH_SHORT).show(); } else { // wifi connection was
+				 * lost Toast.makeText(getApplicationContext(),
+				 * "Connection was lost...", Toast.LENGTH_SHORT).show(); } }
+				 * else Toast.makeText(getApplicationContext(), "Something...",
+				 * Toast.LENGTH_SHORT).show();
+				 */
+				String reason = intent
+						.getStringExtra(ConnectivityManager.EXTRA_REASON);
+				NetworkInfo currentNetworkInfo = (NetworkInfo) intent
+						.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
+
+				String state = currentNetworkInfo.getDetailedState().name();
+				Log.d("xxxX", "reason: " + reason);
+
+				// CONNECTED or DISCONNECTED
+				Log.d("xxxX", "state: " + state);
+				if (currentNetworkInfo.getTypeName().equalsIgnoreCase("WIFI")) {
+					if (currentNetworkInfo.isConnected()) {
+						Toast.makeText(getApplicationContext(),
+								"WIFI Connected...", Toast.LENGTH_SHORT).show();
+						// If the phone has successfully connected to the AP,
+						// save it!
+						mWiFiManager.saveConfiguration();
+						isConnectedOrFailed = true;
+						unregisterReceiver(broadcastReceiver);
+						unregisterReceiver(br);
+						receiverRegistered = false;
+					} else if (reason != null)
+						Toast.makeText(getApplicationContext(), reason,
+								Toast.LENGTH_SHORT).show();
+					else if (state.equalsIgnoreCase("DISCONNECTED")) {
+						// SupplicantState s =
+						// mWiFiManager.getConnectionInfo().getSupplicantState();
+						// NetworkInfo.DetailedState supstate =
+						// WifiInfo.getDetailedStateOf(s);
+						Toast.makeText(getApplicationContext(),
+								"WIFI Disconnected!", Toast.LENGTH_SHORT)
+								.show();
+						mWiFiManager.removeNetwork(netId);
+						isConnectedOrFailed = true;
+						unregisterReceiver(broadcastReceiver);
+						unregisterReceiver(br);
+						receiverRegistered = false;
+
+					}
+				}
+				Log.d("xxx", reason + " *** "
+						+ currentNetworkInfo.getExtraInfo());
+			}
+		};
+
+		intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+		intentFilter.addAction(ConnectivityManager.EXTRA_REASON);
+
+		ifil = new IntentFilter(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
+		br = new BroadcastReceiver() {
+
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				boolean error = false;
+				if (intent.getAction().equals(
+						WifiManager.SUPPLICANT_STATE_CHANGED_ACTION)) {
+					error = intent.hasExtra(WifiManager.EXTRA_SUPPLICANT_ERROR);
+
+				}
+				if (error) {
+					Log
+							.d(
+									"xxxX",
+									"Imaaaaa:  "
+											+ intent
+													.getStringExtra(WifiManager.EXTRA_SUPPLICANT_ERROR));
+					Log.d("xxxX", "Error: ");
+					Toast.makeText(getApplicationContext(),
+							"WIFI Disconnected! The password may be incorrect",
+							Toast.LENGTH_SHORT).show();
+					mWiFiManager.removeNetwork(netId);
+					isConnectedOrFailed = true;
+					unregisterReceiver(broadcastReceiver);
+					unregisterReceiver(br);
+					receiverRegistered = false;
+				}
+			}
+		};
+
 		Button scan = (Button) findViewById(R.id.scan);
 		scan.setOnClickListener(new OnClickListener() {
 
 			public void onClick(View v) {
 				if (mWiFiManager.isWifiEnabled()) {
-					while (mWiFiManager.getWifiState() != WifiManager.WIFI_STATE_ENABLED) {
-						Log.d("xxx", "Please wait...");
-					}
 					getAvailableAPs();
 					getSavedAPs();
-				} else
+				} else if (mWiFiManager.getWifiState() == WifiManager.WIFI_STATE_ENABLING) {
+					Toast.makeText(getApplicationContext(),
+							"Please wait a bit until your WiFi is enabled!",
+							Toast.LENGTH_SHORT).show();
+				} else if (mWiFiManager.getWifiState() == WifiManager.WIFI_STATE_DISABLING
+						|| mWiFiManager.getWifiState() == WifiManager.WIFI_STATE_DISABLED) {
 					Toast.makeText(getApplicationContext(),
 							"Please enable Your WiFi!", Toast.LENGTH_SHORT)
 							.show();
+				}
 			}
 		});
 
@@ -166,6 +299,18 @@ public class WiFiPassShareActivity extends Activity {
 		 * (FileNotFoundException e) { e.printStackTrace(); } catch (IOException
 		 * ioe) { ioe.printStackTrace(); }
 		 */
+	}
+
+	@Override
+	protected void onDestroy() {
+		if (receiverRegistered) {
+			if (broadcastReceiver != null) {
+				unregisterReceiver(broadcastReceiver);
+				unregisterReceiver(br);
+				receiverRegistered = false;
+			}
+		}
+		super.onDestroy();
 	}
 
 	public boolean HaveNetworkConnection() {
@@ -480,6 +625,8 @@ public class WiFiPassShareActivity extends Activity {
 					fWriter2.write(result);
 					fWriter2.flush();
 					fWriter2.close();
+					Toast.makeText(getApplicationContext(),
+							"Updated successfully!", Toast.LENGTH_SHORT).show();
 
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
@@ -626,6 +773,7 @@ public class WiFiPassShareActivity extends Activity {
 
 	public void connectTo(String AP) {
 		boolean exists = false;
+
 		// TODO
 		// proveri dali e vec konektiran wifi, ako e, nishto rabota. proveri i
 		// dali e prisutna konfiguracija i slicno...
@@ -647,17 +795,54 @@ public class WiFiPassShareActivity extends Activity {
 		Log.d("xxx", "bssid: " + bssid + " psk: " + psk + "*");
 
 		if (!exists) {
+
 			WifiConfiguration wifiConfig = new WifiConfiguration();
 			wifiConfig.SSID = "\"" + ssid + "\"";
 			wifiConfig.BSSID = bssid;
 			wifiConfig.preSharedKey = "\"" + psk + "\"";
+			wifiConfig.status = WifiConfiguration.Status.ENABLED;
+
 			mWiFiManager.setWifiEnabled(true);
-			int netId = mWiFiManager.addNetwork(wifiConfig);
+			netId = mWiFiManager.addNetwork(wifiConfig);
 			mWiFiManager.enableNetwork(netId, true);
-			mWiFiManager.saveConfiguration();
+
+			registerReceiver(broadcastReceiver, intentFilter);
+			registerReceiver(br, ifil);
+			receiverRegistered = true;
+
+			new isConnected().execute();
 		} else
 			Toast.makeText(getApplicationContext(),
 					"Network is already configured!", Toast.LENGTH_SHORT)
 					.show();
+	}
+
+	public class isConnected extends AsyncTask<String, Void, String> {
+		ProgressDialog dialog;
+
+		@Override
+		protected void onPreExecute() {
+			dialog = new ProgressDialog(WiFiPassShareActivity.this);
+			dialog.setTitle("Connecting!");
+			dialog.setMessage("Please wait..");
+			dialog.setCancelable(false);
+			dialog.setIndeterminate(true);
+			dialog.show();
+		}
+
+		protected String doInBackground(String... vlezni) {
+			while (true) {
+				if (isConnectedOrFailed) {
+					isConnectedOrFailed = false;
+					break;
+				}
+			}
+			return "";
+		}
+
+		public void onPostExecute(String result) {
+			// Remove the progress dialog.
+			dialog.dismiss();
+		}
 	}
 }
