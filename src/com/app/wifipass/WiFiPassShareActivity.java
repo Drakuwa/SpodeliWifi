@@ -80,6 +80,7 @@ public class WiFiPassShareActivity extends Activity {
 	private boolean receiverRegistered = false;
 	private int netId;
 	public boolean isConnectedOrFailed = false;
+	public boolean isWEP = false;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -402,6 +403,10 @@ public class WiFiPassShareActivity extends Activity {
 			sb.append("AP NAME: " + sr.SSID);
 			sb.append("\n");
 			sb.append("BSSID: " + sr.BSSID);
+			if(sr.capabilities.contains("WEP")){
+				sb.append("\n");
+				sb.append("WEP");
+			}
 			// sb.append("\n");
 			// sb.append("SIGNAL: " + sr.level);
 			AP.add(sb.toString());
@@ -438,7 +443,9 @@ public class WiFiPassShareActivity extends Activity {
 				String localbssid = "";
 				if (currentAP.contains("BSSID:")) {
 					bssid = currentAP
-							.substring(currentAP.indexOf("BSSID:") + 7);
+							.substring(currentAP.indexOf("BSSID:") + 7, currentAP.indexOf("BSSID:") + 24);
+					if(currentAP.contains("WEP")) isWEP = true;
+					else isWEP = false;
 					Log.d("xxx", "YES! it contains -> " + bssid);
 				} else
 					continue;
@@ -464,6 +471,8 @@ public class WiFiPassShareActivity extends Activity {
 							+ localsavedAP.substring(
 									localsavedAP.indexOf(";") + 1, localsavedAP
 											.indexOf("*")));
+					if(isWEP) sb.append("\nWEP:true");
+					else sb.append("\nWEP:false");
 					matchingAP.add(sb.toString());
 					Log.d("xxx", "match in: " + bssid + "=" + localbssid);
 				}
@@ -857,9 +866,11 @@ public class WiFiPassShareActivity extends Activity {
 		boolean exists = false;
 		String bssid = AP.substring(AP.indexOf("BSSID: ") + 7, AP
 				.indexOf("\nPassword"));
-		String psk = AP.substring(AP.indexOf("Password: ") + 10, AP.length());
+		String psk = AP.substring(AP.indexOf("Password: ") + 10, AP.indexOf("\nWEP"));
 		String ssid = AP.substring(AP.indexOf("AP name: ") + 9, AP
 				.indexOf("\nBSSID"));
+		if(AP.contains("WEP:true"))isWEP = true;
+		else isWEP = false;
 
 		// List available networks
 		List<WifiConfiguration> configs = mWiFiManager.getConfiguredNetworks();
@@ -877,7 +888,9 @@ public class WiFiPassShareActivity extends Activity {
 			WifiConfiguration wifiConfig = new WifiConfiguration();
 			wifiConfig.SSID = "\"" + ssid + "\"";
 			wifiConfig.BSSID = bssid;
-			wifiConfig.preSharedKey = "\"" + psk + "\"";
+			if(isWEP){
+				wifiConfig.wepKeys[0] = "\"" + psk + "\"";
+			} else wifiConfig.preSharedKey = "\"" + psk + "\"";
 			wifiConfig.status = WifiConfiguration.Status.ENABLED;
 
 			mWiFiManager.setWifiEnabled(true);
