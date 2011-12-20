@@ -1,81 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  android:orientation="vertical"
-  android:layout_width="match_parent"
-  android:layout_height="wrap_content">
-  
-  <TextView
-  android:id="@+id/apntxt" 
-  android:layout_width="wrap_content"
-  android:layout_height="wrap_content"
-  android:text="Access Point Name:"
-  android:layout_marginLeft="10dip"
-  android:layout_marginTop="10dip"
-  android:layout_alignParentTop="true"
-  />
-  <EditText 
-  android:id="@+id/apn"
-  android:layout_width="fill_parent"
-  android:layout_height="wrap_content"
-  android:layout_marginLeft="10dip"
-  android:layout_marginRight="10dip"
-  android:layout_below="@id/apntxt"
-  />
-  <TextView 
-  android:id="@+id/passtxt"
-  android:layout_width="wrap_content"
-  android:layout_height="wrap_content"
-  android:text="Password:"
-  android:layout_marginLeft="10dip"
-  android:layout_marginTop="10dip"
-  android:layout_below="@id/apn"
-  />
-  <EditText 
-  android:id="@+id/password"
-  android:layout_width="fill_parent"
-  android:layout_height="wrap_content"
-  android:layout_marginLeft="10dip"
-  android:layout_marginRight="10dip"
-  android:layout_below="@id/passtxt"
-  />
-  <TextView 
-  android:id="@+id/loctxt"
-  android:layout_width="wrap_content"
-  android:layout_height="wrap_content"
-  android:text="BSSID:"
-  android:layout_marginLeft="10dip"
-  android:layout_marginTop="10dip"
-  android:layout_below="@id/password"
-  />
-  <EditText 
-  android:id="@+id/location"
-  android:layout_width="fill_parent"
-  android:layout_height="wrap_content"
-  android:layout_marginLeft="10dip"
-  android:layout_marginRight="10dip"
-  android:layout_below="@id/loctxt"
-  />
-  
-  <Button 
-  android:id="@+id/save"
-  android:layout_width="150dip"
-  android:layout_height="wrap_content"
-  android:layout_below="@id/location"
-  android:layout_marginTop="20dip"
-  android:layout_alignLeft="@id/location"
-  android:text="Save!"
-  />
-  <Button
-  android:id="@+id/cancel" 
-  android:layout_width="wrap_content"
-  android:layout_height="wrap_content"
-  android:layout_below="@id/location"
-  android:layout_toRightOf="@id/save"
-  android:layout_marginTop="20dip"
-  android:layout_marginLeft="10dip"
-  android:layout_alignRight="@id/location"
-  android:text="Cancel"
-  />
-    
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/apntxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="10dip"
+        android:layout_marginTop="10dip"
+        android:text="Access Point Name:" />
+
+    <EditText
+        android:id="@+id/apn"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/apntxt"
+        android:layout_marginLeft="10dip"
+        android:layout_marginRight="10dip"
+        android:inputType="text"
+        android:singleLine="true" />
+
+    <TextView
+        android:id="@+id/passtxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/apn"
+        android:layout_marginLeft="10dip"
+        android:layout_marginTop="10dip"
+        android:text="Password:" />
+
+    <EditText
+        android:id="@+id/password"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/passtxt"
+        android:layout_marginLeft="10dip"
+        android:layout_marginRight="10dip"
+        android:inputType="text"
+        android:singleLine="true" />
+
+    <TextView
+        android:id="@+id/loctxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/password"
+        android:layout_marginLeft="10dip"
+        android:layout_marginTop="10dip"
+        android:text="BSSID:" />
+
+    <EditText
+        android:id="@+id/location"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/loctxt"
+        android:layout_marginLeft="10dip"
+        android:layout_marginRight="10dip"
+        android:inputType="textNoSuggestions"
+        android:singleLine="true" />
+
+    <Button
+        android:id="@+id/save"
+        android:layout_width="150dip"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/location"
+        android:layout_below="@id/location"
+        android:layout_marginTop="20dip"
+        android:text="Save!" />
+
+    <Button
+        android:id="@+id/cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@id/location"
+        android:layout_below="@id/location"
+        android:layout_marginLeft="10dip"
+        android:layout_marginTop="20dip"
+        android:layout_toRightOf="@id/save"
+        android:text="Cancel" />
+
 </RelativeLayout>
