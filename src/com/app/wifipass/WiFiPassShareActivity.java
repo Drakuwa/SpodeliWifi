@@ -794,7 +794,7 @@ public class WiFiPassShareActivity extends Activity {
 					ioe.printStackTrace();
 				}
 				Toast.makeText(getApplicationContext(),
-						"AP successfuly updaed!", Toast.LENGTH_SHORT).show();
+						"AP successfully updated!", Toast.LENGTH_SHORT).show();
 			} else
 				Toast.makeText(getApplicationContext(),
 						"Connection error, try again!", Toast.LENGTH_SHORT)
