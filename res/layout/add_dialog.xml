@@ -11,7 +11,7 @@
         android:layout_alignParentTop="true"
         android:layout_marginLeft="10dip"
         android:layout_marginTop="10dip"
-        android:text="Access Point Name:" />
+        android:text="@string/apn" />
 
     <EditText
         android:id="@+id/apn"
@@ -30,7 +30,7 @@
         android:layout_below="@id/apn"
         android:layout_marginLeft="10dip"
         android:layout_marginTop="10dip"
-        android:text="Password:" />
+        android:text="@string/pass" />
 
     <EditText
         android:id="@+id/password"
@@ -49,7 +49,7 @@
         android:layout_below="@id/password"
         android:layout_marginLeft="10dip"
         android:layout_marginTop="10dip"
-        android:text="BSSID:" />
+        android:text="@string/bssid" />
 
     <EditText
         android:id="@+id/location"
@@ -68,7 +68,7 @@
         android:layout_alignLeft="@id/location"
         android:layout_below="@id/location"
         android:layout_marginTop="20dip"
-        android:text="Save!" />
+        android:text="@string/save" />
 
     <Button
         android:id="@+id/cancel"
@@ -79,6 +79,6 @@
         android:layout_marginLeft="10dip"
         android:layout_marginTop="20dip"
         android:layout_toRightOf="@id/save"
-        android:text="Cancel" />
+        android:text="@string/cancel" />
 
 </RelativeLayout>
