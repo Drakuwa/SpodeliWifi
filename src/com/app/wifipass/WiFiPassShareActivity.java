@@ -89,11 +89,17 @@ public class WiFiPassShareActivity extends Activity {
 		setContentView(R.layout.main);
 
 		/**
+		 * Register Uncaught Exception Handler that saves the Force Close
+		 * exceptions in a local file
+		 */
+		Thread.setDefaultUncaughtExceptionHandler(new FCExceptionHandler(this));
+
+		/**
 		 * Get the path to the app folder on the sd card and check if the needed
 		 * two files (the version number, and the list of APs) exist
 		 */
-		path = new File(Environment.getExternalStorageDirectory(), this
-				.getPackageName());
+		path = new File(Environment.getExternalStorageDirectory(),
+				this.getPackageName());
 		if (!path.exists()) {
 			path.mkdir();
 		}
@@ -218,8 +224,8 @@ public class WiFiPassShareActivity extends Activity {
 
 					}
 				}
-				Log.d("xxx", reason + " *** "
-						+ currentNetworkInfo.getExtraInfo());
+				Log.d("xxx",
+						reason + " *** " + currentNetworkInfo.getExtraInfo());
 			}
 		};
 
@@ -244,12 +250,9 @@ public class WiFiPassShareActivity extends Activity {
 
 				}
 				if (error) {
-					Log
-							.d(
-									"xxxX",
-									"Imaaaaa:  "
-											+ intent
-													.getStringExtra(WifiManager.EXTRA_SUPPLICANT_ERROR));
+					Log.d("xxxX",
+							"Imaaaaa:  "
+									+ intent.getStringExtra(WifiManager.EXTRA_SUPPLICANT_ERROR));
 					Log.d("xxxX", "Error: ");
 					Toast.makeText(getApplicationContext(),
 							"WIFI Disconnected! The password may be incorrect",
@@ -365,11 +368,12 @@ public class WiFiPassShareActivity extends Activity {
 	 */
 	public void createInternetDisabledAlert() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder
-				.setMessage(
-						"Your internet connection is disabled! Please enable WiFi, or mobile internet")
-				.setIcon(R.drawable.icon).setTitle(R.string.app_name)
-				.setCancelable(false).setPositiveButton("Internet options",
+		builder.setMessage(
+				"Your internet connection is disabled! Please enable WiFi, or mobile internet")
+				.setIcon(R.drawable.icon)
+				.setTitle(R.string.app_name)
+				.setCancelable(false)
+				.setPositiveButton("Internet options",
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
 								showNetOptions();
@@ -403,7 +407,7 @@ public class WiFiPassShareActivity extends Activity {
 			sb.append("AP NAME: " + sr.SSID);
 			sb.append("\n");
 			sb.append("BSSID: " + sr.BSSID);
-			if(sr.capabilities.contains("WEP")){
+			if (sr.capabilities.contains("WEP")) {
 				sb.append("\n");
 				sb.append("WEP");
 			}
@@ -442,10 +446,13 @@ public class WiFiPassShareActivity extends Activity {
 				String bssid = "";
 				String localbssid = "";
 				if (currentAP.contains("BSSID:")) {
-					bssid = currentAP
-							.substring(currentAP.indexOf("BSSID:") + 7, currentAP.indexOf("BSSID:") + 24);
-					if(currentAP.contains("WEP")) isWEP = true;
-					else isWEP = false;
+					bssid = currentAP.substring(
+							currentAP.indexOf("BSSID:") + 7,
+							currentAP.indexOf("BSSID:") + 24);
+					if (currentAP.contains("WEP"))
+						isWEP = true;
+					else
+						isWEP = false;
 					Log.d("xxx", "YES! it contains -> " + bssid);
 				} else
 					continue;
@@ -462,17 +469,19 @@ public class WiFiPassShareActivity extends Activity {
 				if (bssid.equalsIgnoreCase(localbssid)) {
 					StringBuilder sb = new StringBuilder();
 					sb.append("AP name: "
-							+ localsavedAP.substring(0, localsavedAP
-									.indexOf(";")));
+							+ localsavedAP.substring(0,
+									localsavedAP.indexOf(";")));
 					sb.append("\n");
 					sb.append("BSSID: " + bssid);
 					sb.append("\n");
 					sb.append("Password: "
 							+ localsavedAP.substring(
-									localsavedAP.indexOf(";") + 1, localsavedAP
-											.indexOf("*")));
-					if(isWEP) sb.append("\nWEP:true");
-					else sb.append("\nWEP:false");
+									localsavedAP.indexOf(";") + 1,
+									localsavedAP.indexOf("*")));
+					if (isWEP)
+						sb.append("\nWEP:true");
+					else
+						sb.append("\nWEP:false");
 					matchingAP.add(sb.toString());
 					Log.d("xxx", "match in: " + bssid + "=" + localbssid);
 				}
@@ -552,11 +561,10 @@ public class WiFiPassShareActivity extends Activity {
 
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 					long arg3) {
-				Toast
-						.makeText(
-								getApplicationContext(),
-								"First scan for matching APs, then if found, you can connect!",
-								Toast.LENGTH_SHORT).show();
+				Toast.makeText(
+						getApplicationContext(),
+						"First scan for matching APs, then if found, you can connect!",
+						Toast.LENGTH_SHORT).show();
 			}
 		});
 	}
@@ -772,11 +780,9 @@ public class WiFiPassShareActivity extends Activity {
 					FileWriter fWriter = new FileWriter(versionfile);
 					int v = Integer.parseInt(version);
 					v++;
-					Log
-							.d(
-									"xxx",
-									v
-											+ " ova e novata verzija koja shto ke se zapishe...");
+					Log.d("xxx",
+							v
+									+ " ova e novata verzija koja shto ke se zapishe...");
 					fWriter.write(v + "");
 					fWriter.flush();
 					fWriter.close();
@@ -864,13 +870,16 @@ public class WiFiPassShareActivity extends Activity {
 	public void connectTo(String AP) {
 
 		boolean exists = false;
-		String bssid = AP.substring(AP.indexOf("BSSID: ") + 7, AP
-				.indexOf("\nPassword"));
-		String psk = AP.substring(AP.indexOf("Password: ") + 10, AP.indexOf("\nWEP"));
-		String ssid = AP.substring(AP.indexOf("AP name: ") + 9, AP
-				.indexOf("\nBSSID"));
-		if(AP.contains("WEP:true"))isWEP = true;
-		else isWEP = false;
+		String bssid = AP.substring(AP.indexOf("BSSID: ") + 7,
+				AP.indexOf("\nPassword"));
+		String psk = AP.substring(AP.indexOf("Password: ") + 10,
+				AP.indexOf("\nWEP"));
+		String ssid = AP.substring(AP.indexOf("AP name: ") + 9,
+				AP.indexOf("\nBSSID"));
+		if (AP.contains("WEP:true"))
+			isWEP = true;
+		else
+			isWEP = false;
 
 		// List available networks
 		List<WifiConfiguration> configs = mWiFiManager.getConfiguredNetworks();
@@ -888,9 +897,10 @@ public class WiFiPassShareActivity extends Activity {
 			WifiConfiguration wifiConfig = new WifiConfiguration();
 			wifiConfig.SSID = "\"" + ssid + "\"";
 			wifiConfig.BSSID = bssid;
-			if(isWEP){
+			if (isWEP) {
 				wifiConfig.wepKeys[0] = "\"" + psk + "\"";
-			} else wifiConfig.preSharedKey = "\"" + psk + "\"";
+			} else
+				wifiConfig.preSharedKey = "\"" + psk + "\"";
 			wifiConfig.status = WifiConfiguration.Status.ENABLED;
 
 			mWiFiManager.setWifiEnabled(true);
