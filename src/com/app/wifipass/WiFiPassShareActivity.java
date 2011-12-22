@@ -62,6 +62,7 @@ public class WiFiPassShareActivity extends Activity {
 	// Declare variables
 	private WifiManager mWiFiManager;
 	private ListView lv;
+	private ToggleButton togglebutton;
 	private ArrayAdapter<String> adapter;
 	private ArrayList<String> AP = new ArrayList<String>();
 	private ArrayList<String> savedAP = new ArrayList<String>();
@@ -105,12 +106,14 @@ public class WiFiPassShareActivity extends Activity {
 		}
 		File versionfile = new File(path, "version");
 		if (!versionfile.exists()) {
+
 			try {
 				versionfile.createNewFile();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
+
 		File collectionfile = new File(path, "collection");
 		if (!collectionfile.exists()) {
 			try {
@@ -148,7 +151,7 @@ public class WiFiPassShareActivity extends Activity {
 		/**
 		 * Initialize and set the toggle button state - on if the Wifi is on
 		 */
-		final ToggleButton togglebutton = (ToggleButton) findViewById(R.id.toggle);
+		togglebutton = (ToggleButton) findViewById(R.id.toggle);
 
 		if (mWiFiManager.isWifiEnabled()
 				|| mWiFiManager.getWifiState() == WifiManager.WIFI_STATE_ENABLING) {
@@ -339,6 +342,18 @@ public class WiFiPassShareActivity extends Activity {
 		super.onDestroy();
 	}
 
+	@Override
+	protected void onResume() {
+		if (mWiFiManager.isWifiEnabled()
+				|| mWiFiManager.getWifiState() == WifiManager.WIFI_STATE_ENABLING) {
+			togglebutton.setChecked(true);
+		} else if (!mWiFiManager.isWifiEnabled()
+				|| mWiFiManager.getWifiState() == WifiManager.WIFI_STATE_DISABLING)
+			togglebutton.setChecked(false);
+
+		super.onResume();
+	}
+
 	/**
 	 * Check if there is an internet connection (mobile or wifi) established for
 	 * syncing and adding a new wifi AP to the web service
@@ -401,20 +416,21 @@ public class WiFiPassShareActivity extends Activity {
 		AP.clear();
 		mWiFiManager.startScan();
 		List<ScanResult> mScanResults = mWiFiManager.getScanResults();
-		for (ScanResult sr : mScanResults) {
-			Log.d("xxx", "Scan results: " + sr.toString());
-			StringBuilder sb = new StringBuilder();
-			sb.append("AP NAME: " + sr.SSID);
-			sb.append("\n");
-			sb.append("BSSID: " + sr.BSSID);
-			if (sr.capabilities.contains("WEP")) {
+		if (mScanResults != null)
+			for (ScanResult sr : mScanResults) {
+				Log.d("xxx", "Scan results: " + sr.toString());
+				StringBuilder sb = new StringBuilder();
+				sb.append("AP NAME: " + sr.SSID);
 				sb.append("\n");
-				sb.append("WEP");
+				sb.append("BSSID: " + sr.BSSID);
+				if (sr.capabilities.contains("WEP")) {
+					sb.append("\n");
+					sb.append("WEP");
+				}
+				// sb.append("\n");
+				// sb.append("SIGNAL: " + sr.level);
+				AP.add(sb.toString());
 			}
-			// sb.append("\n");
-			// sb.append("SIGNAL: " + sr.level);
-			AP.add(sb.toString());
-		}
 	}
 
 	/**
