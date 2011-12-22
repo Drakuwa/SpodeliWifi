@@ -841,8 +841,8 @@ public class WiFiPassShareActivity extends Activity {
 		apn.setText(w.getSSID());
 
 		final EditText password = (EditText) dialog.findViewById(R.id.password);
-		final EditText location = (EditText) dialog.findViewById(R.id.location);
-		location.setText(w.getBSSID());
+		final EditText bssid = (EditText) dialog.findViewById(R.id.location);
+		bssid.setText(w.getBSSID());
 
 		Button save = (Button) dialog.findViewById(R.id.save);
 		Button cancel = (Button) dialog.findViewById(R.id.cancel);
@@ -852,13 +852,20 @@ public class WiFiPassShareActivity extends Activity {
 			public void onClick(View v) {
 				String ap = apn.getText().toString();
 				String pass = password.getText().toString();
-				String loc = location.getText().toString();
-				if (ap.length() > 0 && pass.length() > 0 && loc.length() > 0) {
-					new add().execute(ap + ";" + pass + "*" + loc);
-					dialog.dismiss();
+				String BSSID = bssid.getText().toString();
+				if (BSSID
+						.matches("[[a-f][0-9]]{2}:[[a-f][0-9]]{2}:[[a-f][0-9]]{2}:[[a-f][0-9]]{2}:[[a-f][0-9]]{2}:[[a-f][0-9]]{2}")) {
+					if (ap.length() > 0 && pass.length() > 0
+							&& BSSID.length() > 0) {
+						new add().execute(ap + ";" + pass + "*" + BSSID);
+						dialog.dismiss();
+					} else
+						Toast.makeText(getApplicationContext(),
+								"Please enter AP name, Password and BSSID!",
+								Toast.LENGTH_SHORT).show();
 				} else
 					Toast.makeText(getApplicationContext(),
-							"Please enter AP name, Password and BSSID!",
+							"BSSID must be in this form xx:xx:xx:xx:xx:xx",
 							Toast.LENGTH_SHORT).show();
 			}
 		});
