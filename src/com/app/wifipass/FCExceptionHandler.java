@@ -22,7 +22,7 @@ public class FCExceptionHandler implements Thread.UncaughtExceptionHandler {
 	
 	public void uncaughtException(Thread t, Throwable e) {
 		StackTraceElement[] arr = e.getStackTrace();
-		String report = "App version: "+getVersionName(this.app);
+		String report = "App version: "+getVersionName(this.app)+"\n\n";
 		report += e.toString() + "\n\n";
 		report += "--------- Stack trace ---------\n\n";
 		for (int i = 0; i < arr.length; i++) {
