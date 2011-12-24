@@ -483,7 +483,7 @@ public class WiFiPassShareActivity extends Activity {
 				Log.d("xxx", "local saved ap: " + localsavedAP);
 				if (localsavedAP.contains("*")) {
 					localbssid = localsavedAP.substring(localsavedAP
-							.indexOf("*") + 1);
+							.lastIndexOf("*") + 1);
 					Log.d("xxx", "YES again! it contains -> " + localbssid);
 				} else
 					continue;
@@ -500,7 +500,7 @@ public class WiFiPassShareActivity extends Activity {
 					sb.append("Password: "
 							+ localsavedAP.substring(
 									localsavedAP.indexOf(";") + 1,
-									localsavedAP.indexOf("*")));
+									localsavedAP.lastIndexOf("*")));
 					if (isWEP)
 						sb.append("\nWEP:true");
 					else
