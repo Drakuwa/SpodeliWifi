@@ -14,15 +14,17 @@ public class FCExceptionHandler implements Thread.UncaughtExceptionHandler {
 	private Thread.UncaughtExceptionHandler defaultUEH;
 
 	private Activity app = null;
-	
+
 	public FCExceptionHandler(Activity app) {
 		this.defaultUEH = Thread.getDefaultUncaughtExceptionHandler();
 		this.app = app;
 	}
-	
+
 	public void uncaughtException(Thread t, Throwable e) {
 		StackTraceElement[] arr = e.getStackTrace();
-		String report = "App version: "+getVersionName(this.app)+"\n\n";
+		String report = "App version: " + getVersionName(this.app)
+				+ " Phone Model: " + android.os.Build.MANUFACTURER + "-"
+				+ android.os.Build.MODEL + "\n\n";
 		report += e.toString() + "\n\n";
 		report += "--------- Stack trace ---------\n\n";
 		for (int i = 0; i < arr.length; i++) {
@@ -54,13 +56,14 @@ public class FCExceptionHandler implements Thread.UncaughtExceptionHandler {
 
 		defaultUEH.uncaughtException(t, e);
 	}
-	
+
 	public static String getVersionName(Context context) {
-		   PackageManager pm = context.getPackageManager();
-		   try {
-		      PackageInfo pi = pm.getPackageInfo(context.getPackageName(), 0);
-		      return pi.versionName;
-		   } catch (NameNotFoundException ex) {}
-		   return "";
+		PackageManager pm = context.getPackageManager();
+		try {
+			PackageInfo pi = pm.getPackageInfo(context.getPackageName(), 0);
+			return pi.versionName;
+		} catch (NameNotFoundException ex) {
+		}
+		return "";
 	}
 }

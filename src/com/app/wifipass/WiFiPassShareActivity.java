@@ -124,6 +124,12 @@ public class WiFiPassShareActivity extends Activity {
 		}
 
 		/**
+		 * Check if there are exceptions saved in a local file, and send/delete
+		 * them
+		 */
+		checkBugs();
+
+		/**
 		 * Get the version of the list
 		 */
 		try {
@@ -278,6 +284,7 @@ public class WiFiPassShareActivity extends Activity {
 		scan.setOnClickListener(new OnClickListener() {
 
 			public void onClick(View v) {
+
 				if (mWiFiManager.isWifiEnabled()) {
 					getAvailableAPs();
 					getSavedAPs();
@@ -975,5 +982,86 @@ public class WiFiPassShareActivity extends Activity {
 			// Remove the progress dialog.
 			dialog.dismiss();
 		}
+	}
+
+	/**
+	 * A function that checks the existence of stack.trace file and calls a
+	 * function alert for sending/deleting it
+	 */
+	private void checkBugs() {
+
+		File file = new File("/data/data/com.app.wifipass/files/stack.trace");
+		if (file.exists()) {
+
+			String line = "";
+			String trace = "";
+			try {
+				BufferedReader reader = new BufferedReader(
+						new InputStreamReader(
+								WiFiPassShareActivity.this
+										.openFileInput("stack.trace")));
+				while ((line = reader.readLine()) != null) {
+					trace += line + "\n";
+				}
+			} catch (FileNotFoundException fnfe) {
+				// ...
+			} catch (IOException ioe) {
+				// ...
+			}
+
+			syncExceptionsAlert(trace);
+		}
+	}
+
+	/**
+	 * A function that shows an AlertDialog for deleting/sending the stack.trace
+	 * file to the developers email
+	 * 
+	 * @param trace
+	 */
+	public void syncExceptionsAlert(final String trace) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage(
+				"There are unsent bugs, report them via email to the developer, or delete them? ")
+				.setIcon(R.drawable.icon)
+				.setTitle(R.string.app_name)
+				.setCancelable(true)
+				.setPositiveButton("Report",
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								Intent sendIntent = new Intent(
+										Intent.ACTION_SEND);
+								String subject = "Bug report";
+								String body = "Mail bugs to drakuwa@gmail.com: "
+										+ "\n\n" + trace + "\n\n";
+
+								sendIntent.putExtra(Intent.EXTRA_EMAIL,
+										new String[] { "drakuwa@gmail.com" });
+								sendIntent.putExtra(Intent.EXTRA_TEXT, body);
+								sendIntent.putExtra(Intent.EXTRA_SUBJECT,
+										subject);
+								sendIntent.setType("message/rfc822");
+
+								WiFiPassShareActivity.this.startActivity(Intent
+										.createChooser(sendIntent, "Title:"));
+
+								WiFiPassShareActivity.this
+										.deleteFile("stack.trace");
+							}
+						});
+		builder.setNegativeButton("Delete",
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						File file = new File(
+								"/data/data/com.app.wifipass/files/stack.trace");
+						if (file.exists()) {
+							WiFiPassShareActivity.this
+									.deleteFile("stack.trace");
+						}
+						dialog.cancel();
+					}
+				});
+		AlertDialog alert = builder.create();
+		alert.show();
 	}
 }
