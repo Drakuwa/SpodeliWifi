@@ -5,6 +5,8 @@ SpodeliWifi за Android
 
 Апликацијата е слободен софтвер и е објавена под [GNU GPLv3](http://www.gnu.org/licenses/gpl-3.0.txt "GNU GPLv3") лиценца.
 
+**UPDATE:** Апликацијата е објавена на [Android Market](https://market.android.com/details?id=com.app.wifipass "Android Market")
+
 Contact:
 -------
 
