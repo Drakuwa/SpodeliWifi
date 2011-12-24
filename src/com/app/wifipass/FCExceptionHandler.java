@@ -5,6 +5,9 @@ import java.io.IOException;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 
 public class FCExceptionHandler implements Thread.UncaughtExceptionHandler {
 
@@ -19,7 +22,8 @@ public class FCExceptionHandler implements Thread.UncaughtExceptionHandler {
 	
 	public void uncaughtException(Thread t, Throwable e) {
 		StackTraceElement[] arr = e.getStackTrace();
-		String report = e.toString() + "\n\n";
+		String report = "App version: "+getVersionName(this.app);
+		report += e.toString() + "\n\n";
 		report += "--------- Stack trace ---------\n\n";
 		for (int i = 0; i < arr.length; i++) {
 			report += "    " + arr[i].toString() + "\n";
@@ -49,5 +53,14 @@ public class FCExceptionHandler implements Thread.UncaughtExceptionHandler {
 		}
 
 		defaultUEH.uncaughtException(t, e);
+	}
+	
+	public static String getVersionName(Context context) {
+		   PackageManager pm = context.getPackageManager();
+		   try {
+		      PackageInfo pi = pm.getPackageInfo(context.getPackageName(), 0);
+		      return pi.versionName;
+		   } catch (NameNotFoundException ex) {}
+		   return "";
 	}
 }
