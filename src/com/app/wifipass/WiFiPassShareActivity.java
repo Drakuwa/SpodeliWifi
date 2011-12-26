@@ -824,6 +824,9 @@ public class WiFiPassShareActivity extends Activity {
 				}
 				Toast.makeText(getApplicationContext(),
 						"AP successfully updated!", Toast.LENGTH_SHORT).show();
+			} else if (result.equalsIgnoreCase("AP already exists!")) {
+				Toast.makeText(getApplicationContext(), "AP already exists!",
+						Toast.LENGTH_SHORT).show();
 			} else
 				Toast.makeText(getApplicationContext(),
 						"Connection error, try again!", Toast.LENGTH_SHORT)
