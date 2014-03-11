@@ -1,0 +1,18 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.swifi.al.MainActivity">
+
+    <item
+        android:id="@+id/menu_item_add_new"
+        android:icon="@drawable/ic_action_add"
+        android:title="@string/AddNew"
+        app:showAsAction="ifRoom|withText" />
+
+    <item
+        android:id="@+id/menu_item_sync"
+        android:icon="@drawable/ic_action_sync"
+        android:title="@string/Sync"
+        app:showAsAction="never" />
+
+</menu>

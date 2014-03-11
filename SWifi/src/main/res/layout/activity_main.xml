@@ -1,0 +1,32 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#eee"
+    tools:context="com.app.wifipass.MainActivity"
+    tools:ignore="MergeRootFrame">
+
+    <ListView
+        android:id="@+id/listMatched"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="0dp"
+        android:divider="#DEDBD3"
+        android:dividerHeight="2sp"
+        android:drawSelectorOnTop="false" />
+
+    <TextView
+        android:id="@+id/textviewScan"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_above="@id/listMatched"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="0dp"
+        android:background="#16a085"
+        android:gravity="center"
+        android:text="@string/Scan"
+        android:textColor="#fff"
+        android:textSize="25sp" />
+</RelativeLayout>

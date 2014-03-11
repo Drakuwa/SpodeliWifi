@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Share WiFi</string>
+    <string name="Scan">Scan</string>
+    <string name="Sync">Sync</string>
+    <string name="AddNew">Add New</string>
+    <string name="AccessPointName">Access point name</string>
+    <string name="Password">Password</string>
+    <string name="latest">LATEST</string>
+
+    <string name="already_configured">Network is already configured</string>
+    <string name="incorrect_ap_or_password">Incorrect AP name or Password</string>
+    <string name="wifi_connected">Wifi Connected...</string>
+    <string name="wifi_disconnected">Wifi Disconnected...</string>
+    <string name="wait_until_wifi_is_enabled">Please wait a bit until your WiFi is enabled</string>
+    <string name="turn_on_network_connection">Please make sure your Network Connection is ON</string>
+    <string name="connection_to_server_failed">Connection to server failed</string>
+    <string name="no_access_points_available">No access points available...</string>
+    <string name="enable_the_wifi">Your internet connection is disabled. Please enable the Wifi</string>
+    <string name="enable">Enable</string>
+    <string name="no_aps">No APs found</string>
+    <string name="add_access_point">Add Access Point</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="access_point_added">Access point added</string>
+    <string name="failed_to_add_access_point">Failed to add Access point</string>
+    <string name="wifi_password_remembered">The password is saved</string>
+
+</resources>
